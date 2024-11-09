@@ -5,7 +5,8 @@ import java.util.Map;
 import java.util.Scanner;
 import java.sql.*;
 
-public class Simulare_liga1 {
+//sa porneasca de aici gen aplicatia, good practice
+public class Main {
     public static void main(String[] args) {
 
         Connection conn = Database.getInstance().getConnection();
@@ -58,6 +59,13 @@ public class Simulare_liga1 {
             for (Echipa e : echipe.values()) {
                 System.out.println(e.getNume());
             }
+        }
+    }
+
+    public static void afisareEchipe(Map<String, Echipa> echipe){
+        for(Echipa element : echipe.values()){
+            System.out.println(element.getNume());
+            System.out.println(element.getLocatia());
         }
     }
 
