@@ -9,7 +9,6 @@ import static simulare_liga.Main.getEchipe;
 
 public class ClasamentEchipe extends JFrame{
     private JTable Clasament;
-    private JScrollPane scrollPane1;
     private JTable Live;
 
     private final Map<String, Echipa> echipeInstance = getEchipe();
