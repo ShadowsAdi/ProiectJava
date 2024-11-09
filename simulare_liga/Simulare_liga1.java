@@ -7,15 +7,17 @@ import java.sql.*;
 
 public class Simulare_liga1 {
     public static void main(String[] args) {
-        Database dObj = Database.getInstance();
-        Connection conn = dObj.getConnection();
+
+        Connection conn = Database.getInstance().getConnection();
+
+        assert conn != null;
         createTables(conn);
         createTriggers(conn);
 
         /* Cred ca un hashmap e mai ok totusi*/
-        Map<String, Echipa> echipe = new HashMap();
+        Map<String, Echipa> echipe = new HashMap<>();
 
-        String query = "SELECT * FROM `echipe`";
+        String query = "SELECT * FROM `Echipe`";
         boolean bFoundTeams = false;
 
         try {
@@ -68,7 +70,6 @@ public class Simulare_liga1 {
                 "PRIMARY KEY(ID));";
 
         try {
-            assert conn != null;
             try (Statement stmt = conn.createStatement()) {
                 stmt.executeUpdate(query);
             }
@@ -105,7 +106,7 @@ public class Simulare_liga1 {
         try (PreparedStatement pstmt = conn.prepareStatement(query)) {
             pstmt.setString(1, triggerName);
             try (ResultSet rs = pstmt.executeQuery()) {
-                return rs.next();
+                return !rs.next();
             }
         }
     }
@@ -113,11 +114,13 @@ public class Simulare_liga1 {
     /* Triggere pentru a insera / sterge randurile din tabelul Statistici in cazul in care o echipa
     * este adaugata / stearsa din tabelul Echipe*/
     public static void createTriggers(Connection conn) {
+
+        // \s = whitespace
         String createInsertTrigger = """
               CREATE TRIGGER\s""" + Constants.INSERT_TRIGGER + """
                AFTER INSERT ON Echipe
                 FOR EACH ROW
-                BEGIN 
+                BEGIN\s
                 INSERT INTO Statistici (ID_Echipa, meciuri_jucate, victorii, infrangeri, egaluri, goluri_marcate, goluri_primite)
                 VALUES (NEW.ID, 0, 0, 0, 0, 0, 0);
                 END;
@@ -126,7 +129,7 @@ public class Simulare_liga1 {
         System.out.println(createInsertTrigger);
 
         try (Statement stmt = conn.createStatement()) {
-            if (!triggerExists(conn, Constants.INSERT_TRIGGER)) {
+            if (triggerExists(conn, Constants.INSERT_TRIGGER)) {
                 stmt.executeUpdate(createInsertTrigger);
                 System.out.println("Inser trigger created.");
             }
@@ -149,7 +152,7 @@ public class Simulare_liga1 {
 
 
         try (Statement stmt = conn.createStatement()) {
-            if (!triggerExists(conn, Constants.DELETE_TRIGGER)) {
+            if (triggerExists(conn, Constants.DELETE_TRIGGER)) {
                 stmt.executeUpdate(createDeleteTrigger);
                 System.out.println("Delete trigger created.");
             }
