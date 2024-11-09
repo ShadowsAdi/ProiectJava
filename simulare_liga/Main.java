@@ -27,11 +27,11 @@ public class Main {
 
                 // isBeforeFirst() verifica daca s-a gasit cel putin un rezultat in query
                 if(rs.isBeforeFirst()) {
-                    bFoundTeams = true;
+//                    bFoundTeams = true;
                     while (rs.next()) {
-                        System.out.println("ID Echipa: " + rs.getInt("id"));
-                        System.out.println("Echipa: " + rs.getString("echipa"));
-                        System.out.println("Puncte: " + rs.getInt("puncte"));
+//                        System.out.println("ID Echipa: " + rs.getInt("id"));
+//                        System.out.println("Echipa: " + rs.getString("echipa"));
+//                        System.out.println("Puncte: " + rs.getInt("puncte"));
 
                         echipe.put(rs.getString("echipa"), new Echipa(rs.getString("echipa"),
                                 rs.getInt("puncte")));
@@ -54,12 +54,11 @@ public class Main {
                 scanner.nextLine();
                 echipe.put(nume, new Echipa(nume, puncte));
             }
-            // Idk ce face asta
-            //new Meciuri(nrDeEchipe, echipe);
-            for (Echipa e : echipe.values()) {
-                System.out.println(e.getNume());
-            }
+            Meciuri meciuri = new Meciuri(nrDeEchipe, echipe);
+            meciuri.setScore(nrDeEchipe, echipe);
         }
+
+
     }
 
     public static void afisareEchipe(Map<String, Echipa> echipe){
