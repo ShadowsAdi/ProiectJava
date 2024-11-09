@@ -13,6 +13,8 @@ public class Constants {
     public static final String INSERT_TRIGGER = "insert_trigger1";
     public static final String DELETE_TRIGGER = "delete_trigger1";
 
+    public static final boolean DEBUG = false;
+
     public static String getPASSWORD() {
         return PASSWORD;
     }

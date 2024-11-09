@@ -89,7 +89,8 @@ public class Simulare_liga1 {
                 "PRIMARY KEY(ID), " +
                 "FOREIGN KEY (ID_Echipa) REFERENCES " + Constants.TABLE_NAME_ECHIPE +  "(ID) ON DELETE CASCADE);";
 
-        System.out.println(query);
+        if(Constants.DEBUG)
+            System.out.println(query);
 
         try {
             try (Statement stmt = conn.createStatement()) {
@@ -125,16 +126,18 @@ public class Simulare_liga1 {
                 VALUES (NEW.ID, 0, 0, 0, 0, 0, 0);
                 END;
         """;
-
-        System.out.println(createInsertTrigger);
+        if(Constants.DEBUG)
+            System.out.println(createInsertTrigger);
 
         try (Statement stmt = conn.createStatement()) {
             if (triggerExists(conn, Constants.INSERT_TRIGGER)) {
                 stmt.executeUpdate(createInsertTrigger);
-                System.out.println("Inser trigger created.");
+                if(Constants.DEBUG)
+                    System.out.println("Inser trigger created.");
             }
             else {
-                System.out.println("Insert trigger already exists.");
+                if(Constants.DEBUG)
+                    System.out.println("Insert trigger already exists.");
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -154,10 +157,12 @@ public class Simulare_liga1 {
         try (Statement stmt = conn.createStatement()) {
             if (triggerExists(conn, Constants.DELETE_TRIGGER)) {
                 stmt.executeUpdate(createDeleteTrigger);
-                System.out.println("Delete trigger created.");
+                if(Constants.DEBUG)
+                    System.out.println("Delete trigger created.");
             }
             else {
-                System.out.println("Delete trigger already exists.");
+                if(Constants.DEBUG)
+                    System.out.println("Delete trigger already exists.");
             }
         } catch (SQLException e) {
             e.printStackTrace();

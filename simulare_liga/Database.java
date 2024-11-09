@@ -23,8 +23,8 @@ public class Database {
         try {
             conn = DriverManager.getConnection(Constants.getURL(),
                     Constants.getUSERNAME(), Constants.getPASSWORD());
-
-            System.out.println("Connected to the database successfully!");
+            if(Constants.DEBUG)
+                System.out.println("Connected to the database successfully!");
         } catch (SQLException e) {
             System.err.println("Failed to connect to the database.");
             e.printStackTrace();
