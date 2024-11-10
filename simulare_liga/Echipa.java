@@ -5,7 +5,8 @@ public class Echipa{
     private int puncte;
     private String nume;
     private String locatia;
-    private int goluri;
+    private int goluriPrimite;
+    private int goluriDate;
     Echipa(String nume, String locatia){
         this.nume = nume;
         this.locatia = locatia;
@@ -31,12 +32,20 @@ public class Echipa{
         this.nume = nume;
     }
 
-    public int getGoluri() {
-        return goluri;
+    public int getGoluriDate() {
+        return goluriDate;
     }
 
-    public void setGoluri(int goluri) {
-        this.goluri = goluri;
+    public void setGoluriDate(int goluriDate) {
+        this.goluriDate = goluriDate;
+    }
+
+    public int getGoluriPrimite() {
+        return goluriPrimite;
+    }
+
+    public void setGoluriPrimite(int goluriPrimite) {
+        this.goluriPrimite = goluriPrimite;
     }
 
     public String getLocatia() {
