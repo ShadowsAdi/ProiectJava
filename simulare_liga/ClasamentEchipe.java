@@ -1,8 +1,8 @@
 package simulare_liga;
 
 import javax.swing.*;
-import java.awt.*;
-import java.awt.event.ComponentAdapter;
+import javax.swing.table.DefaultTableModel;
+import java.awt.event.*;
 import java.util.Map;
 
 import static simulare_liga.Main.getEchipe;
@@ -10,11 +10,16 @@ import static simulare_liga.Main.getEchipe;
 public class ClasamentEchipe extends JFrame{
     private JTable Clasament;
     private JTable Live;
+    private JScrollPane ScrollTableLive;
+    private JScrollPane ScrollTableClasament;
+    private JPanel AppPanel;
 
     private final Map<String, Echipa> echipeInstance = getEchipe();
 
     ClasamentEchipe() {
         setTitle("Simulare Liga 1 - Proiect Java");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setContentPane(AppPanel);
 
         int rowCount = echipeInstance.size();
         String[][] data = new String[rowCount][2];
@@ -27,30 +32,52 @@ public class ClasamentEchipe extends JFrame{
         }
 
         String[] clasamentColumns = { "Echipa", "Puncte" };
+        DefaultTableModel clasamentModel = new DefaultTableModel(data, clasamentColumns) {
+             @Override
+             public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
 
-        Clasament = new JTable(data, clasamentColumns);
-        Clasament.setBounds(30, 40, 200, 300);
+        Clasament.setModel(clasamentModel);
 
-        JScrollPane clasamentSP = new JScrollPane(Clasament);
         String[] liveColumns = { "Gazda", "Oaspete", "Scor" };
 
         String[][] live = new String[][]{
             {"Steaua", "Dinamo", "0-0"}
         };
 
-        Live = new JTable(live, liveColumns);
-        Live.setBounds(280, 40, 200, 300);
-        JScrollPane liveSP = new JScrollPane(Live);
+        DefaultTableModel liveModel = new DefaultTableModel(live, liveColumns) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
 
-        JPanel panel = new JPanel();
-        panel.setLayout(new GridLayout(1, 2));
-        panel.add(clasamentSP);
-        panel.add(liveSP);
+        Live.setModel(liveModel);
 
-        add(panel);
+        ScrollTableClasament.setViewportView(Clasament);
+        ScrollTableLive.setViewportView(Live);
 
-        setSize(500, 200);
+        addTableClickListener(Clasament);
+        addTableClickListener(Live);
+
+        pack();
         setVisible(true);
+    }
+
+    private static void addTableClickListener(JTable table) {
+        table.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                int row = table.rowAtPoint(e.getPoint());
+                int column = table.columnAtPoint(e.getPoint());
+                if (row >= 0 && column >= 0) {
+                    Object value = table.getValueAt(row, column);
+                    System.out.println("Selectat:  " + value);
+                }
+            }
+        });
     }
 
     /*public static void main(String[] args) {

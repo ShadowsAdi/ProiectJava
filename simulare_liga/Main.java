@@ -14,6 +14,12 @@ public class Main {
         return echipe;
     }
 
+    private static Map<String, Meciuri> meciuri = new HashMap<>();
+
+    public static Map<String, Meciuri> getMeciuri() {
+        return meciuri;
+    }
+
     public static void main(String[] args) {
 
         Connection conn = Database.getInstance().getConnection();
