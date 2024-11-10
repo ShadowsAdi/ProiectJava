@@ -7,6 +7,19 @@ import java.sql.*;
 
 //sa porneasca de aici gen aplicatia, good practice
 public class Main {
+     /* Cred ca un hashmap e mai ok totusi*/
+    private static Map<String, Echipa> echipe = new HashMap<>();
+
+    public static Map<String, Echipa> getEchipe() {
+        return echipe;
+    }
+
+    private static Map<String, Meciuri> meciuri = new HashMap<>();
+
+    public static Map<String, Meciuri> getMeciuri() {
+        return meciuri;
+    }
+
     public static void main(String[] args) {
 
         Connection conn = Database.getInstance().getConnection();
@@ -15,12 +28,8 @@ public class Main {
         createTables(conn);
         createTriggers(conn);
 
-        /* Cred ca un hashmap e mai ok totusi*/
-        Map<String, Echipa> echipe = new HashMap<>();
-
         String query = "SELECT * FROM `Echipe`";
         boolean bFoundTeams = false;
-
         try {
             try (Statement stmt = conn.createStatement();
                      ResultSet rs = stmt.executeQuery(query)) {
@@ -58,13 +67,15 @@ public class Main {
             meciuri.setScore(nrDeEchipe, echipe);
         }
 
+        afisareEchipe(echipe);
 
+        new ClasamentEchipe();
     }
 
     public static void afisareEchipe(Map<String, Echipa> echipe){
-        for(Echipa element : echipe.values()){
-            System.out.println(element.getNume());
-            System.out.println(element.getLocatia());
+        for(Echipa echipa : echipe.values()){
+            System.out.println(echipa.getNume());
+            System.out.println(echipa.getPuncte());
         }
     }
 
@@ -94,10 +105,28 @@ public class Main {
                 "`goluri_marcate` INT NOT NULL," +
                 "`goluri_primite` INT NOT NULL," +
                 "PRIMARY KEY(ID), " +
-                "FOREIGN KEY (ID_Echipa) REFERENCES " + Constants.TABLE_NAME_ECHIPE +  "(ID) ON DELETE CASCADE);";
+                "FOREIGN KEY (ID_Echipa) REFERENCES " + Constants.TABLE_NAME_ECHIPE + "(ID) ON DELETE CASCADE);";
 
         if(Constants.DEBUG)
             System.out.println(query);
+
+        try {
+            try (Statement stmt = conn.createStatement()) {
+                stmt.executeUpdate(query);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        query = "CREATE TABLE IF NOT EXISTS " + Constants.TABLE_NAME_MECIURI +
+                "(`ID` INT NOT NULL AUTO_INCREMENT," +
+                "`ID_Gazda` INT NOT NULL," +
+                "`ID_Oaspete` INT NOT NULL," +
+                "`Scor_gazda` INT NOT NULL," +
+                "`Scor_oapete` INT NOT NULL," +
+                "PRIMARY KEY(ID)," +
+                "FOREIGN KEY (ID_Gazda) REFERENCES " + Constants.TABLE_NAME_ECHIPE + "(ID)," +
+                "FOREIGN KEY (ID_Oaspete) REFERENCES " + Constants.TABLE_NAME_ECHIPE + "(ID));";
 
         try {
             try (Statement stmt = conn.createStatement()) {
