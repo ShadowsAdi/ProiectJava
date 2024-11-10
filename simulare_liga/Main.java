@@ -36,11 +36,14 @@ public class Main {
 
                 // isBeforeFirst() verifica daca s-a gasit cel putin un rezultat in query
                 if(rs.isBeforeFirst()) {
-//                    bFoundTeams = true;
+                    bFoundTeams = true;
                     while (rs.next()) {
-//                        System.out.println("ID Echipa: " + rs.getInt("id"));
-//                        System.out.println("Echipa: " + rs.getString("echipa"));
-//                        System.out.println("Puncte: " + rs.getInt("puncte"));
+                        if(Constants.DEBUG)
+                        {
+                            System.out.println("ID Echipa: " + rs.getInt("id"));
+                            System.out.println("Echipa: " + rs.getString("echipa"));
+                            System.out.println("Puncte: " + rs.getInt("puncte"));
+                        }
 
                         echipe.put(rs.getString("echipa"), new Echipa(rs.getString("echipa"),
                                 rs.getInt("puncte")));
@@ -52,19 +55,45 @@ public class Main {
         }
 
         // Daca nu sunt gasite echipe in baza de date, introducem unele de la tastatura
-        // TODO: si mai apoi in baza de date
         if(!bFoundTeams) {
+            System.out.println("Introduceti numarul de echipe:");
+
             Scanner scanner = new Scanner(System.in);
             int nrDeEchipe = scanner.nextInt();
+
+            System.out.println("Introduceti echipele participante in liga:");
             scanner.nextLine();
             for (int i = 0; i < nrDeEchipe; i++) {
+                System.out.println("Nume echipa " + (i + 1) + ":");
                 String nume = scanner.nextLine();
+
+                System.out.println("Puncte echipa " + (i + 1) + ":");
                 int puncte = scanner.nextInt();
                 scanner.nextLine();
-                echipe.put(nume, new Echipa(nume, puncte));
+                System.out.println("Locatie echipa " + (i + 1) + ":");
+                String locatie = scanner.nextLine();
+
+                Echipa echipa = new Echipa(nume, puncte);
+                echipa.setLocatia(locatie);
+                echipe.put(nume, echipa);
             }
-            Meciuri meciuri = new Meciuri(nrDeEchipe, echipe);
-            meciuri.setScore(nrDeEchipe, echipe);
+            // Dezactivat cat am facut testele pentru GUI
+            /*Meciuri meciuri = new Meciuri(nrDeEchipe, echipe);
+            meciuri.setScore(nrDeEchipe, echipe);*/
+
+            for (Echipa echipa : echipe.values()) {
+                query = "INSERT INTO `Echipe` (Echipa, Puncte, Locatie) VALUES (?, ?, ?)";
+                try {
+                    try (PreparedStatement pstmt = conn.prepareStatement(query)) {
+                        pstmt.setString(1, echipa.getNume());
+                        pstmt.setInt(2, echipa.getPuncte());
+                        pstmt.setString(3, echipa.getLocatia());
+                        pstmt.executeUpdate();
+                    }
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
         }
 
         afisareEchipe(echipe);
