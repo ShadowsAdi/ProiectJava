@@ -10,9 +10,9 @@ public class Echipa{
         this.nume = nume;
         this.locatia = locatia;
     }
-    Echipa(String nume, int goluri){
+    Echipa(String nume, int puncte){
         this.nume = nume;
-        this.goluri = goluri;
+        this.puncte = puncte;
     }
 
     public int getPuncte() {
