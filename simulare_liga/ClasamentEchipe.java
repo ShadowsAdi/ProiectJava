@@ -5,9 +5,11 @@ import javax.swing.border.LineBorder;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.Arrays;
 import java.util.Map;
 
 import static simulare_liga.Main.getEchipe;
+import static simulare_liga.Main.getMeciuri;
 
 public class ClasamentEchipe extends JFrame{
     private JTable Clasament;
@@ -18,24 +20,26 @@ public class ClasamentEchipe extends JFrame{
 
     private static JDialog ClasamentDialog;
 
-    private final Map<String, Echipa> echipeInstance = getEchipe();
+    private static final Map<String, Echipa> echipeInstance = getEchipe();
+    private static final Meciuri meciuriInstance = getMeciuri();
 
     ClasamentEchipe() {
         setTitle("Simulare Liga 1 - Proiect Java");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
         setContentPane(AppPanel);
 
         int rowCount = echipeInstance.size();
-        String[][] data = new String[rowCount][2];
+        String[][] data = new String[rowCount][3];
 
         int i = 0;
         for (Echipa echipa : echipeInstance.values()) {
-            data[i][0] = echipa.getNume();
-            data[i][1] = String.valueOf(echipa.getPuncte());
+            data[i][0] = String.valueOf(i);
+            data[i][1] = echipa.getNume();
+            data[i][2] = String.valueOf(echipa.getPuncte());
             i++;
         }
 
-        String[] clasamentColumns = { "Echipa", "Puncte" };
+        String[] clasamentColumns = { "Loc", "Echipa", "Puncte" };
         DefaultTableModel clasamentModel = new DefaultTableModel(data, clasamentColumns) {
              @Override
              public boolean isCellEditable(int row, int column) {
@@ -45,13 +49,26 @@ public class ClasamentEchipe extends JFrame{
 
         Clasament.setModel(clasamentModel);
 
-        String[] liveColumns = { "Gazda", "Oaspete", "Scor" };
+        String[] liveColumns = { "Meci ID", "Gazda", "Oaspete", "Scor" };
 
-        String[][] live = new String[][]{
-            {"Steaua", "Dinamo", "0-0"}
-        };
+        Map<Integer, PairMeci> meciuriMap = meciuriInstance.getMeciuriMap();
 
-        DefaultTableModel liveModel = new DefaultTableModel(live, liveColumns) {
+        rowCount = meciuriMap.size();
+
+        System.out.println("rowCount: " + rowCount);
+        String[][] dataLive = new String[rowCount][4];
+
+        i = 0;
+        for (Integer key : meciuriMap.keySet()) {
+            PairMeci meci = meciuriMap.get(key);
+            dataLive[i][0] = String.valueOf(key);
+            dataLive[i][1] = meci.getEc1().getNume();
+            dataLive[i][2] = meci.getEc2().getNume();
+            dataLive[i][3] = meci.getEc1().getGoluriDate() + "-" + meci.getEc2().getGoluriDate();
+            i++;
+        }
+
+        DefaultTableModel liveModel = new DefaultTableModel(dataLive, liveColumns) {
             @Override
             public boolean isCellEditable(int row, int column) {
                 return false;
@@ -76,26 +93,37 @@ public class ClasamentEchipe extends JFrame{
         ClasamentDialog.setSize(200, 200);
     }
 
-    private static void addTableClickListener(JTable table) {
+    private void addTableClickListener(JTable table) {
         table.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 int row = table.rowAtPoint(e.getPoint());
                 int column = table.columnAtPoint(e.getPoint());
-                if (row >= 0 && column >= 0) {
-                    Object colName = table.getColumnName(column);
-                    // Daca nu apasam pe un element din coloanele "Echipa", "Gazda" sau "Oaspete", nu afisam dialogul
-                    if(!(colName.equals("Echipa") || colName.equals("Gazda") || colName.equals("Oaspete"))) {
-                        return;
-                    }
+                Object value = table.getValueAt(row, column);
 
-                    ClasamentDialog.getContentPane().removeAll();
-                    JLabel dialogText = getDialogText();
-                    ClasamentDialog.getContentPane().add(dialogText);
-                    ClasamentDialog.pack();
-                    ClasamentDialog.setLocation(e.getLocationOnScreen());
-                    ClasamentDialog.setVisible(true);
-                } else {
+                if (row >= 0 && column >= 0) {
+                    if(echipeInstance.containsKey(value) || /*meciuriInstance.getMeciuriMap().get(row)
+                            .getEc1().getNume().contains(value.toString())*/ table.equals(Live)) {
+                        if(table.equals(Clasament)) {
+                           ClasamentDialog.getContentPane().removeAll();
+                            JLabel dialogText = getDialogText(false, row, table.getColumnName(column));
+                            ClasamentDialog.getContentPane().add(dialogText);
+                            ClasamentDialog.pack();
+                            ClasamentDialog.setLocation(e.getLocationOnScreen());
+                            ClasamentDialog.setVisible(true);
+                        }
+                        else if(table.equals(Live)) {
+                            ClasamentDialog.getContentPane().removeAll();
+                            JLabel dialogText = getDialogText(true, row, table.getColumnName(column));
+                            ClasamentDialog.getContentPane().add(dialogText);
+                            ClasamentDialog.pack();
+                            ClasamentDialog.setLocation(e.getLocationOnScreen());
+                            ClasamentDialog.setVisible(true);
+                        }
+                    }
+                }
+                else
+                {
                     if (ClasamentDialog != null) {
                         ClasamentDialog.setVisible(false);
                     }
@@ -104,19 +132,46 @@ public class ClasamentEchipe extends JFrame{
         });
     }
 
-    private static JLabel getDialogText() {
-        JLabel dialogText = new JLabel(
-                            "<html><div style='color:blue; font-size:12px;'>Nume Echipa: test</div><br>" +
-                            "<div style='color:green; font-size:12px;'>Puncte: 7</div><br>" +
-                            "<div style='color:red; font-size:12px;'>Goluri date: 3</div><br>" +
-                            "<div style='color:purple; font-size:12px;'>Goluri primite: 2</div><br>" +
-                            "<div style='color:orange; font-size:12px;'>Locatia: test</div></html>"
-        );
+    private static JLabel getDialogText(boolean isLive, int row, String column) {
+        JLabel dialogText = new JLabel();
+
+        String[][] data;
+        if (!isLive) {
+            data = new String[echipeInstance.size()][2];
+            int i = 0;
+            for (Echipa echipa : echipeInstance.values()) {
+                data[i][0] = echipa.getNume();
+                data[i][1] = String.valueOf(echipa.getPuncte());
+                i++;
+            }
+
+            dialogText.setText("<html><div style='color:blue; font-size:12px;'>Nume Echipa: "+ data[row][0] + "</div><br>" +
+                    "<div style='color:green; font-size:12px;'>Puncte: " + data[row][1] + "</div><br></html>");
+        }
+        else
+        {
+            Map<Integer, PairMeci> meciuriMap = meciuriInstance.getMeciuriMap();
+            data = new String[meciuriMap.size()][5];
+            int i = 0;
+            for (Integer key : meciuriMap.keySet()) {
+            PairMeci meci = meciuriMap.get(key);
+            Echipa echipa = column.equals("Gazda") ? meci.getEc1() : meci.getEc2();
+            data[i][0] = echipa.getNume();
+            data[i][1] = String.valueOf(echipa.getPuncte());
+            data[i][2] = String.valueOf(echipa.getGoluriDate());
+            data[i][3] = String.valueOf(echipa.getGoluriPrimite());
+            data[i][4] = echipa.getLocatia();
+            i++;
+        }
+
+        dialogText.setText("<html><div style='color:blue; font-size:12px;'>Nume Echipa: "+ data[row][0] + "</div><br>" +
+                    "<div style='color:green; font-size:12px;'>Puncte: " + data[row][1] + "</div><br>" +
+                    "<div style='color:red; font-size:12px;'>Goluri date: " + data[row][2] + "</div><br>" +
+                    "<div style='color:purple; font-size:12px;'>Goluri primite: " + data[row][3] + "</div><br>" +
+                    "<div style='color:orange; font-size:12px;'>Locatia: "+ data[row][4] +"</div></html>");
+        }
+
         dialogText.setFont(new Font("Arial", Font.PLAIN, 12));
         return dialogText;
     }
-
-    /*public static void main(String[] args) {
-        new ClasamentEchipe();
-    }*/
 }

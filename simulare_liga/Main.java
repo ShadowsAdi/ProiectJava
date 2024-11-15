@@ -14,14 +14,15 @@ public class Main {
         return echipe;
     }
 
-    private static Map<String, Meciuri> meciuri = new HashMap<>();
+    private static Meciuri meciuri;
 
-    public static Map<String, Meciuri> getMeciuri() {
+    public static Meciuri getMeciuri() {
         return meciuri;
     }
 
-    public static void main(String[] args) {
+    private static int nrDeEchipe = 0;
 
+    public static void main(String[] args) {
         Connection conn = Database.getInstance().getConnection();
 
         assert conn != null;
@@ -31,22 +32,31 @@ public class Main {
         String query = "SELECT * FROM `Echipe`";
         boolean bFoundTeams = false;
         try {
-            try (Statement stmt = conn.createStatement();
+            try (Statement stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
                      ResultSet rs = stmt.executeQuery(query)) {
+
+                if (rs.last()) {
+                    nrDeEchipe = rs.getRow();
+                    rs.beforeFirst();
+                }
 
                 // isBeforeFirst() verifica daca s-a gasit cel putin un rezultat in query
                 if(rs.isBeforeFirst()) {
+
                     bFoundTeams = true;
                     while (rs.next()) {
                         if(Constants.DEBUG)
                         {
-                            System.out.println("ID Echipa: " + rs.getInt("id"));
-                            System.out.println("Echipa: " + rs.getString("echipa"));
-                            System.out.println("Puncte: " + rs.getInt("puncte"));
+                            System.out.println("ID Echipa: " + rs.getInt("ID"));
+                            System.out.println("Echipa: " + rs.getString("Echipa"));
+                            System.out.println("Puncte: " + rs.getInt("Puncte"));
+                            System.out.println("Locatie: " + rs.getString("Locatie"));
                         }
 
-                        echipe.put(rs.getString("echipa"), new Echipa(rs.getString("echipa"),
-                                rs.getInt("puncte")));
+                        Echipa echipa = new Echipa(rs.getString("echipa"), rs.getInt("puncte"));
+                        echipa.setLocatia(rs.getString("Locatie"));
+
+                        echipe.put(rs.getString("echipa"), echipa);
                     }
                 }
             }
@@ -59,7 +69,7 @@ public class Main {
             System.out.println("Introduceti numarul de echipe:");
 
             Scanner scanner = new Scanner(System.in);
-            int nrDeEchipe = scanner.nextInt();
+            nrDeEchipe = scanner.nextInt();
 
             System.out.println("Introduceti echipele participante in liga:");
             scanner.nextLine();
@@ -77,9 +87,6 @@ public class Main {
                 echipa.setLocatia(locatie);
                 echipe.put(nume, echipa);
             }
-            // Dezactivat cat am facut testele pentru GUI
-            /*Meciuri meciuri = new Meciuri(nrDeEchipe, echipe);
-            meciuri.setScore(nrDeEchipe, echipe);*/
 
             for (Echipa echipa : echipe.values()) {
                 query = "INSERT INTO `Echipe` (Echipa, Puncte, Locatie) VALUES (?, ?, ?)";
@@ -95,6 +102,9 @@ public class Main {
                 }
             }
         }
+
+        meciuri = new Meciuri(nrDeEchipe, echipe);
+        meciuri.setScore();
 
         afisareEchipe(echipe);
 
