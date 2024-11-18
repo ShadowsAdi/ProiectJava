@@ -48,34 +48,21 @@ public class Meciuri {
 
                 nrDeMeciuri++;
                 meciuriMap.put(nrDeMeciuri, new PairMeci(echipa1, echipa2));
-
-                listaEchipe.sort((o1, o2) -> {
-                    // 1. Compară punctele (descrescător)
-                    if (o1.getPuncte() != o2.getPuncte()) {
-                        return o2.getPuncte() - o1.getPuncte();
-                    }
-
-                    // 2. Compară golaverajul (descrescător)
-                    int golaveraj1 = o1.getGoluriDate() - o1.getGoluriPrimite();
-                    int golaveraj2 = o2.getGoluriDate() - o2.getGoluriPrimite();
-                    if (golaveraj1 != golaveraj2) {
-                        return golaveraj2 - golaveraj1;
-                    }
-
-                    // 3. Compară numărul total de goluri marcate (descrescător)
-                    if (o1.getGoluriDate() != o2.getGoluriDate()) {
-                        return o2.getGoluriDate() - o1.getGoluriDate();
-                    }
-
-                    // Dacă toate criteriile sunt egale
-                    return 0;
-                });
             }
         }
 
         System.out.println("Meciuri: " + meciuriMap.size());
         afisareEchipe(Echipe);
-}
+    }
+
+    public void compareScores() {
+        List<Echipa> listaEchipe = new ArrayList<>(Echipe.values());
+
+        Collections.sort(listaEchipe, new ComparatorPuncteImpl());
+
+        System.out.println("Meciuri: " + meciuriMap.size());
+        afisareEchipe(Echipe);
+    }
 
     public static void afisareEchipe(Map<String, Echipa> echipe){
         for(Echipa element : echipe.values()){

@@ -102,13 +102,12 @@ public class Main {
                 }
             }
         }
+        new ClasamentEchipe();
 
         meciuri = new Meciuri(nrDeEchipe, echipe);
         meciuri.setScore();
 
         afisareEchipe(echipe);
-
-        new ClasamentEchipe();
     }
 
     public static void afisareEchipe(Map<String, Echipa> echipe){

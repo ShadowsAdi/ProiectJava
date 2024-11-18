@@ -7,10 +7,7 @@ public class Echipa{
     private String locatia;
     private int goluriPrimite;
     private int goluriDate;
-    Echipa(String nume, String locatia){
-        this.nume = nume;
-        this.locatia = locatia;
-    }
+
     Echipa(String nume, int puncte){
         this.nume = nume;
         this.puncte = puncte;

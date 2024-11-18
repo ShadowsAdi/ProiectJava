@@ -5,8 +5,8 @@ import javax.swing.border.LineBorder;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.*;
-import java.util.Arrays;
 import java.util.Map;
+import java.util.List;
 
 import static simulare_liga.Main.getEchipe;
 import static simulare_liga.Main.getMeciuri;
@@ -20,62 +20,17 @@ public class ClasamentEchipe extends JFrame{
 
     private static JDialog ClasamentDialog;
 
-    private static final Map<String, Echipa> echipeInstance = getEchipe();
-    private static final Meciuri meciuriInstance = getMeciuri();
+    private static Map<String, Echipa> echipeInstance = null;
+    private static Meciuri meciuriInstance = null;
 
     ClasamentEchipe() {
         setTitle("Simulare Liga 1 - Proiect Java");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setContentPane(AppPanel);
 
-        int rowCount = echipeInstance.size();
-        String[][] data = new String[rowCount][3];
+        updateTables();
 
-        int i = 0;
-        for (Echipa echipa : echipeInstance.values()) {
-            data[i][0] = String.valueOf(i);
-            data[i][1] = echipa.getNume();
-            data[i][2] = String.valueOf(echipa.getPuncte());
-            i++;
-        }
-
-        String[] clasamentColumns = { "Loc", "Echipa", "Puncte" };
-        DefaultTableModel clasamentModel = new DefaultTableModel(data, clasamentColumns) {
-             @Override
-             public boolean isCellEditable(int row, int column) {
-                return false;
-            }
-        };
-
-        Clasament.setModel(clasamentModel);
-
-        String[] liveColumns = { "Meci ID", "Gazda", "Oaspete", "Scor" };
-
-        Map<Integer, PairMeci> meciuriMap = meciuriInstance.getMeciuriMap();
-
-        rowCount = meciuriMap.size();
-
-        System.out.println("rowCount: " + rowCount);
-        String[][] dataLive = new String[rowCount][4];
-
-        i = 0;
-        for (Integer key : meciuriMap.keySet()) {
-            PairMeci meci = meciuriMap.get(key);
-            dataLive[i][0] = String.valueOf(key);
-            dataLive[i][1] = meci.getEc1().getNume();
-            dataLive[i][2] = meci.getEc2().getNume();
-            dataLive[i][3] = meci.getEc1().getGoluriDate() + "-" + meci.getEc2().getGoluriDate();
-            i++;
-        }
-
-        DefaultTableModel liveModel = new DefaultTableModel(dataLive, liveColumns) {
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                return false;
-            }
-        };
-
-        Live.setModel(liveModel);
+        startAutoRefresh();
 
         ScrollTableClasament.setViewportView(Clasament);
         ScrollTableLive.setViewportView(Live);
@@ -91,6 +46,89 @@ public class ClasamentEchipe extends JFrame{
         ClasamentDialog.getRootPane().setBorder(new LineBorder(Color.GRAY, 3));
         ClasamentDialog.setUndecorated(true);
         ClasamentDialog.setSize(200, 200);
+    }
+
+    private void updateTables() {
+        echipeInstance = getEchipe();
+        int rowCount = echipeInstance.size();
+        String[][] data = new String[rowCount][3];
+
+        int i = 0;
+        for (Echipa echipa : echipeInstance.values()) {
+            data[i][0] = String.valueOf(i);
+            data[i][1] = echipa.getNume();
+            data[i][2] = String.valueOf(echipa.getPuncte());
+            i++;
+        }
+
+        String[] clasamentColumns = {"Loc", "Echipa", "Puncte"};
+        DefaultTableModel clasamentModel = new DefaultTableModel(data, clasamentColumns) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+
+        Clasament.setModel(clasamentModel);
+
+        String[] liveColumns = {"Meci ID", "Gazda", "Oaspete", "Scor"};
+
+        meciuriInstance = getMeciuri();
+        // TODO: Hashmap pentru indentificarea meciurilor din retur.
+        // daca key-ul + valoarea exista, meciul este in retur .
+        // EX: 1 + 2 = tur, 2 + 1 = retur, sau poate alta metoda aparent.
+
+        // Aici o sa fie si comparatorul.
+        String[][] dataLive = new String[0][4];
+        if (meciuriInstance != null) {
+            Map<Integer, PairMeci> meciuriMap = meciuriInstance.getMeciuriMap();
+
+            rowCount = meciuriMap.size();
+
+            System.out.println("rowCount: " + rowCount);
+            dataLive = new String[rowCount][4];
+
+            i = 0;
+            for (Integer key : meciuriMap.keySet()) {
+                PairMeci meci = meciuriMap.get(key);
+                dataLive[i][0] = String.valueOf(key);
+                dataLive[i][1] = meci.getEc1().getNume();
+                dataLive[i][2] = meci.getEc2().getNume();
+                dataLive[i][3] = meci.getEc1().getGoluriDate() + "-" + meci.getEc2().getGoluriDate();
+                i++;
+            }
+        }
+
+        DefaultTableModel liveModel = new DefaultTableModel(dataLive, liveColumns) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+
+        Live.setModel(liveModel);
+    }
+
+    private void startAutoRefresh() {
+        SwingWorker<Void, Void> worker = new SwingWorker<>() {
+            @Override
+            protected Void doInBackground() throws Exception {
+                for (;;) {
+                    Thread.sleep(5000);
+                    publish();
+                }
+            }
+
+            @Override
+            protected void process(List<Void> chunks) {
+                try {
+                    updateTables();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+        worker.execute();
     }
 
     private void addTableClickListener(JTable table) {

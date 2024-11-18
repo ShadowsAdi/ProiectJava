@@ -39,6 +39,8 @@
           <component id="a6593" class="javax.swing.JTable" binding="Live">
             <constraints/>
             <properties>
+              <autoCreateRowSorter value="false"/>
+              <cellSelectionEnabled value="true"/>
               <font name="Arial" size="14" style="1"/>
               <foreground color="-15592942"/>
               <gridColor color="-2894984"/>
@@ -46,6 +48,9 @@
               <rowHeight value="25"/>
               <selectionBackground color="-16725065"/>
             </properties>
+            <clientProperties>
+              <terminateEditOnFocusLost class="java.lang.Boolean" value="true"/>
+            </clientProperties>
           </component>
         </children>
       </scrollpane>
