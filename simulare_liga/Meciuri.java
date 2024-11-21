@@ -41,6 +41,7 @@ public class Meciuri {
                 int goluriEchipa1 = scanner.nextInt();
                 int goluriEchipa2 = scanner.nextInt();
 
+                // trebuie gasita o alta abordare, asta adauga goluri la fiecare echipa overall, nu doar la meciul respectiv
                 echipa1.setGoluriDate(echipa1.getGoluriDate() + goluriEchipa1);
                 echipa1.setGoluriPrimite(echipa1.getGoluriPrimite() + goluriEchipa2);
                 echipa2.setGoluriDate(echipa2.getGoluriDate() + goluriEchipa2);

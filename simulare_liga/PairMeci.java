@@ -1,5 +1,7 @@
 package simulare_liga;
 
+// clasa "PairMeci" este folosita pentru a retine perechile de echipe care se intalnesc in cadrul unui meci
+// folosita ca si value in HashMap-ul "meciuriMap" din clasa "Meciuri"
 public class PairMeci {
     private Echipa ec1;
     private Echipa ec2;
