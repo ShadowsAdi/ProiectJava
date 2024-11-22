@@ -193,9 +193,7 @@ public class ClasamentEchipe extends JFrame{
                 if (row >= 0 && column >= 0) {
                     // se verifica daca valoarea de la randul si coloana la care s-a dat click este o echipa
                     // mai lucrez la treaba aia cu meciuriInstance.getMeciuriMap etc
-                    if(echipeInstance.containsKey(value) || /*meciuriInstance.getMeciuriMap().get(row)
-                            .getEc1().getNume().contains(value.toString())*/ table.equals(Live)) {
-
+                    if(echipeInstance.containsKey(value)) {
                         // se afiseaza fereastra de dialog creata in constructorul clasei "ClasamentEchipe" cu
                         // informatiile despre echipa selectata
                         // daca tabelul este "Clasament", se afiseaza informatii despre echipa selectata
@@ -244,6 +242,8 @@ public class ClasamentEchipe extends JFrame{
     // functia care formateaza informatiile despre echipa selectata
     private static JLabel getDialogText(boolean isLive, int row, String column) {
         // se creeaza un label pentru textul care va fi afisat in fereastra de dialog
+
+        // de uitat asta
         JLabel dialogText = new JLabel();
 
         // se preiau datele despre echipe si meciuri din HashMap-uri
