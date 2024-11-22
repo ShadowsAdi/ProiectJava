@@ -8,9 +8,9 @@ public class Echipa{
     private int goluriPrimite;
     private int goluriDate;
 
-    Echipa(String nume, int puncte){
+    Echipa(String nume, String locatie){
         this.nume = nume;
-        this.puncte = puncte;
+        this.locatia = locatie;
     }
 
     public int getPuncte() {
@@ -18,7 +18,7 @@ public class Echipa{
     }
 
     public void setPuncte(int puncte) {
-        this.puncte = puncte;
+        this.puncte = this.puncte + puncte;
     }
 
     public String getNume() {
@@ -49,7 +49,4 @@ public class Echipa{
         return locatia;
     }
 
-    public void setLocatia(String locatia) {
-        this.locatia = locatia;
-    }
 }

@@ -77,9 +77,7 @@ public class Main {
 
                         // preluam datele din ResultSet si le introducem in HashMap-ul de echipe
                         // primul parametru este numele echipei, al doilea parametru este numarul de puncte al echipei
-                        Echipa echipa = new Echipa(rs.getString("echipa"), rs.getInt("puncte"));
-                        // setam locatia echipei in obiectul Echipa
-                        echipa.setLocatia(rs.getString("Locatie"));
+                        Echipa echipa = new Echipa(rs.getString("echipa"), rs.getString("locatie"));
 
                         // introducem echipa in HashMap-ul de echipe
                         // key = numele echipei, value = obiectul Echipa
@@ -114,10 +112,9 @@ public class Main {
                 int puncte = scanner.nextInt();
                 scanner.nextLine();
                 System.out.println("Locatie echipa " + (i + 1) + ":");
-                String locatie = scanner.nextLine();
+                String locatia = scanner.nextLine();
 
-                Echipa echipa = new Echipa(nume, puncte);
-                echipa.setLocatia(locatie);
+                Echipa echipa = new Echipa(nume, locatia);
 
                 // introducem echipa in HashMap-ul de echipe
                 // key = numele echipei, value = obiectul Echipa

@@ -23,8 +23,8 @@ public class Meciuri {
         List<String> listaNumeEchipe = new ArrayList<>(Echipe.keySet());
 
         System.out.println("Size: " + listaNumeEchipe);
-
         System.out.println("Echipe: " + nrDeEchipe);
+
         int nrDeMeciuri = 0;
         for (int i = 0; i < nrDeEchipe; i++) {
             for (int j = 0; j < nrDeEchipe; j++) {
@@ -41,14 +41,28 @@ public class Meciuri {
                 int goluriEchipa1 = scanner.nextInt();
                 int goluriEchipa2 = scanner.nextInt();
 
-                // trebuie gasita o alta abordare, asta adauga goluri la fiecare echipa overall, nu doar la meciul respectiv
+                // buna pentru statistica adica cate goluri a dat si primit fiecare echipa
                 echipa1.setGoluriDate(echipa1.getGoluriDate() + goluriEchipa1);
                 echipa1.setGoluriPrimite(echipa1.getGoluriPrimite() + goluriEchipa2);
                 echipa2.setGoluriDate(echipa2.getGoluriDate() + goluriEchipa2);
                 echipa2.setGoluriPrimite(echipa2.getGoluriPrimite() + goluriEchipa1);
 
+                // folosit pentru a afisa in timp real scorul la fiecare meci
                 nrDeMeciuri++;
-                meciuriMap.put(nrDeMeciuri, new PairMeci(echipa1, echipa2));
+                // pt fiecare meci se retine cate goluri a dat echipa1 si echipa2
+                PairMeci meci = new PairMeci(echipa1, echipa2);
+                meciuriMap.put(nrDeMeciuri, meci);
+                meci.setGoluriDateEC1(goluriEchipa1);
+                meci.setGoluriDateEC2(goluriEchipa2);
+                // calcularea punctelor in functie de goluri
+                if (goluriEchipa1 > goluriEchipa2) {
+                    echipa1.setPuncte(3);
+                } else if(goluriEchipa1 < goluriEchipa2) {
+                    echipa2.setPuncte(3);
+                }else{
+                    echipa1.setPuncte(1);
+                    echipa2.setPuncte(1);
+                }
             }
         }
 

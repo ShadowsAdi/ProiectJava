@@ -102,7 +102,7 @@ public class ClasamentEchipe extends JFrame{
         Clasament.setModel(clasamentModel);
 
         // se repeta aceeasi procedura pentru tabelul Live
-        String[] liveColumns = {"Meci ID", "Gazda", "Oaspete", "Scor"};
+        String[] liveColumns = {"Meci ID", "Gazda", "Oaspete", "Scor", "Locatie"};
 
         meciuriInstance = getMeciuri();
         // TODO: Hashmap pentru indentificarea meciurilor din retur.
@@ -115,7 +115,7 @@ public class ClasamentEchipe extends JFrame{
 
             rowCount = meciuriMap.size();
 
-            dataLive = new String[rowCount][4];
+            dataLive = new String[rowCount][5];
 
             i = 0;
             // se parcurge HashMap-ul de meciuri si se adauga datele in array-ul bidimensional
@@ -129,7 +129,9 @@ public class ClasamentEchipe extends JFrame{
                 // a treia coloana = numele echipei oaspete
                 dataLive[i][2] = meci.getEc2().getNume();
                 // a patra coloana = scorul meciului
-                dataLive[i][3] = meci.getEc1().getGoluriDate() + "-" + meci.getEc2().getGoluriDate();
+                dataLive[i][3] = meci.getGoluriDateEC1() + "-" + meci.getGoluriDateEC2();
+                // locatia unde se tine meciul
+                dataLive[i][4] = meci.getEc1().getLocatia();
                 i++;
             }
         }
@@ -167,6 +169,7 @@ public class ClasamentEchipe extends JFrame{
                 try {
                     // se apeleaza functia de actualizare a datelor din tabele
                     updateTables();
+
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -193,9 +196,7 @@ public class ClasamentEchipe extends JFrame{
                 if (row >= 0 && column >= 0) {
                     // se verifica daca valoarea de la randul si coloana la care s-a dat click este o echipa
                     // mai lucrez la treaba aia cu meciuriInstance.getMeciuriMap etc
-                    if(echipeInstance.containsKey(value) || /*meciuriInstance.getMeciuriMap().get(row)
-                            .getEc1().getNume().contains(value.toString())*/ table.equals(Live)) {
-
+                    if(echipeInstance.containsKey(value)) {
                         // se afiseaza fereastra de dialog creata in constructorul clasei "ClasamentEchipe" cu
                         // informatiile despre echipa selectata
                         // daca tabelul este "Clasament", se afiseaza informatii despre echipa selectata
@@ -251,22 +252,22 @@ public class ClasamentEchipe extends JFrame{
         // daca tabelul este "Clasament", se preiau datele despre echipe
         if (!isLive) {
             // se preiau datele despre echipe din HashMap si se adauga in array-ul bidimensional
-            // echipeInstance.size() = numarul de echipe, 2 coloane: Nume Echipa, Puncte
+            // echipeInstance.size() = numarul de echipe, 2 coloane: Nume Echipa, Locatie
             data = new String[echipeInstance.size()][2];
             int i = 0;
             // se parcurge HashMap-ul si se adauga datele in array-ul bidimensional
             for (Echipa echipa : echipeInstance.values()) {
                 // prima coloana = numele echipei
                 data[i][0] = echipa.getNume();
-                // a doua coloana = punctele echipei
-                data[i][1] = String.valueOf(echipa.getPuncte());
+                // a doua coloana = locatia echipei
+                data[i][1] = echipa.getLocatia();
                 i++;
             }
 
             // se adauga textul in fereastra de dialog cu informatiile despre echipa selectata din tabelul "Clasament"
             // se formateaza textul cu HTML si se adauga in JLabel-ul "dialogText"
             dialogText.setText("<html><div style='color:blue; font-size:12px;'>Nume Echipa: "+ data[row][0] + "</div><br>" +
-                    "<div style='color:green; font-size:12px;'>Puncte: " + data[row][1] + "</div><br></html>");
+                    "<div style='color:green; font-size:12px;'>Locatia: " + data[row][1] + "</div><br></html>");
         }
         // daca tabelul este "Live", se preiau datele despre meciuri
         else

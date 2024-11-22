@@ -5,6 +5,8 @@ package simulare_liga;
 public class PairMeci {
     private Echipa ec1;
     private Echipa ec2;
+    public int GoluriDateEC1;
+    public int GoluriDateEC2;
 
     public PairMeci(Echipa ec1, Echipa ec2) {
         this.ec1 = ec1;
@@ -26,4 +28,21 @@ public class PairMeci {
     public void setEc2(Echipa ec2) {
         this.ec2 = ec2;
     }
+
+    public void setGoluriDateEC1(int goluri){
+        this.GoluriDateEC1 = goluri;
+    }
+
+    public int getGoluriDateEC1(){
+        return GoluriDateEC1;
+    }
+
+    public void setGoluriDateEC2(int goluri){
+        this.GoluriDateEC2 = goluri;
+    }
+
+    public int getGoluriDateEC2(){
+        return GoluriDateEC2;
+    }
+
 }
