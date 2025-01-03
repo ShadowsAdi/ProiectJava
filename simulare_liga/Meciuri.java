@@ -19,11 +19,7 @@ public class Meciuri {
 
     public void setScore() {
         Scanner scanner = new Scanner(System.in);
-        List<Echipa> listaEchipe = new ArrayList<>(Echipe.values());
         List<String> listaNumeEchipe = new ArrayList<>(Echipe.keySet());
-
-        System.out.println("Size: " + listaNumeEchipe);
-        System.out.println("Echipe: " + nrDeEchipe);
 
         int nrDeMeciuri = 0;
         for (int i = 0; i < nrDeEchipe; i++) {
@@ -63,7 +59,7 @@ public class Meciuri {
                     echipa2.setPuncte(3);
                     echipa2.setVictorii(echipa2.getVictorii()+1);
                     echipa1.setInfrangeri(echipa1.getInfrangeri()+1);
-                }else{
+                } else {
                     echipa1.setPuncte(1);
                     echipa2.setPuncte(1);
                     echipa1.setEgaluri(echipa1.getEgaluri()+1);
@@ -72,16 +68,6 @@ public class Meciuri {
             }
         }
 
-        System.out.println("Meciuri: " + meciuriMap.size());
-        afisareEchipe(Echipe);
-    }
-
-    public void compareScores() {
-        List<Echipa> listaEchipe = new ArrayList<>(Echipe.values());
-
-        Collections.sort(listaEchipe, new ComparatorPuncteImpl());
-
-        System.out.println("Meciuri: " + meciuriMap.size());
         afisareEchipe(Echipe);
     }
 

@@ -1,6 +1,11 @@
-package simulare_liga;
+package simulare_liga.ui;
+
+import simulare_liga.Echipa;
+import simulare_liga.Meciuri;
+import simulare_liga.PairMeci;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
@@ -14,7 +19,16 @@ import java.util.List;
 import static simulare_liga.Main.getEchipe;
 import static simulare_liga.Main.getMeciuri;
 
-public class ClasamentEchipe extends JFrame{
+import static simulare_liga.ui.ModernTable.setupModernStyle;
+import static simulare_liga.ui.ModernScrollPane.setupModernStyle;
+
+public class ClasamentEchipe extends JFrame {
+
+    private static final Color HEADER_BG = new Color(33, 41, 51);
+    private static final Color HEADER_FG = new Color(255, 255, 255);
+    private static final Color ROW_BG = new Color(245, 247, 250);
+    private static final Color ALT_ROW_BG = new Color(255, 255, 255);
+    private static final Color SELECTION_BG = new Color(51, 153, 255);
 
     // ( 1 ) de aici
     private JTable Clasament;
@@ -31,12 +45,24 @@ public class ClasamentEchipe extends JFrame{
     private static Meciuri meciuriInstance = null;
 
     // in clasa Main, funtia main, se apeleaza constructorl acestei clase pentru a porni interfata grafica
-    ClasamentEchipe() {
+    public ClasamentEchipe() {
         setTitle("Simulare Liga 1 - Proiect Java");
         // daca se inchide fereastra grafica, se inchide si aplicatia din rulare
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         // se seteaza dimensiunea ferestrei
+        AppPanel.setBackground(new Color(240, 242, 245));
+        AppPanel.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(new Color(230, 230, 230), 1),
+            new EmptyBorder(15, 15, 15, 15)
+        ));
+
         setContentPane(AppPanel);
+
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         // se apeleaza functia care construieste si actualizeaza datele din tabele
         updateTables();
@@ -45,8 +71,13 @@ public class ClasamentEchipe extends JFrame{
         startAutoRefresh();
 
         // se adauga scroll la tabele in cazul in care elementele depasesc dimensiunea ferestrei
+        setupModernStyle(ScrollTableClasament);
+        setupModernStyle(ScrollTableLive);
         ScrollTableClasament.setViewportView(Clasament);
         ScrollTableLive.setViewportView(Live);
+
+        setupModernStyle(Clasament);
+        setupModernStyle(Live);
 
         // se adauga un event listener pentru fiecare tabel, care afiseaza informatii despre echipa selectata la click
         addTableClickListener(Clasament);
@@ -377,4 +408,6 @@ public class ClasamentEchipe extends JFrame{
         // se returneaza JLabel-ul cu textul formatat
         return dialogText;
     }
+
+
 }

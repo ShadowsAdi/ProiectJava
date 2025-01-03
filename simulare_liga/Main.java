@@ -1,5 +1,7 @@
 package simulare_liga;
 
+import simulare_liga.ui.ClasamentEchipe;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
