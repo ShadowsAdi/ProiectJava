@@ -3,6 +3,8 @@ package simulare_liga;
 import javax.swing.*;
 import javax.swing.border.LineBorder;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
@@ -73,6 +75,30 @@ public class ClasamentEchipe extends JFrame{
         return listaEchipe;
     }
 
+    private void adjustColumnWidths(JTable table) {
+        final int margin = 10; // Add some margin to the width
+
+        for (int col = 0; col < table.getColumnCount(); col++) {
+            TableColumn column = table.getColumnModel().getColumn(col);
+            int maxWidth = 0;
+
+            // Check header width
+            TableCellRenderer headerRenderer = table.getTableHeader().getDefaultRenderer();
+            Component headerComponent = headerRenderer.getTableCellRendererComponent(table, column.getHeaderValue(), false, false, 0, col);
+            maxWidth = headerComponent.getPreferredSize().width;
+
+            // Check cell widths
+            for (int row = 0; row < table.getRowCount(); row++) {
+                TableCellRenderer cellRenderer = table.getCellRenderer(row, col);
+                Component cellComponent = cellRenderer.getTableCellRendererComponent(table, table.getValueAt(row, col), false, false, row, col);
+                maxWidth = Math.max(maxWidth, cellComponent.getPreferredSize().width);
+            }
+
+            // Adjust column width
+            column.setPreferredWidth(maxWidth + margin);
+        }
+    }
+
     // functia care actualizeaza datele din tabele
     private void updateTables() {
         // preluam HashMap-urile echipelor din clasa Main.main
@@ -82,7 +108,7 @@ public class ClasamentEchipe extends JFrame{
         int rowCount = echipeInstance.size();
         // se initializeaza un array bidimensional de stringuri pentru a stoca datele din HashMap
         // rowCount = numarul de echipe, 3 coloane: Loc, Echipa, Puncte
-        String[][] data = new String[rowCount][3];
+        String[][] data = new String[rowCount][8];
 
         List<Echipa> orderedEchipeInstance = order_by_puncte(echipeInstance);
         int i = 0;
@@ -95,11 +121,21 @@ public class ClasamentEchipe extends JFrame{
             data[i][1] = echipa.getNume();
             // a treia coloana = punctele echipei
             data[i][2] = String.valueOf(echipa.getPuncte());
+            // a 4a coloana = nr de goluri inscrise
+            data[i][3] = String.valueOf(echipa.getGoluriDate());
+            // a 5a coloana = nr de goluri primite
+            data[i][4] = String.valueOf(echipa.getGoluriPrimite());
+            // a 6a coloana = victorii
+            data[i][5] = String.valueOf(echipa.getVictorii());
+            // a7a coloana = egaluri
+            data[i][6] = String.valueOf(echipa.getEgaluri());
+            // a8a coloana = infrangeri
+            data[i][7] = String.valueOf(echipa.getInfrangeri());
             i++;
         }
 
         // se creeaza un model de tabel cu datele din array-ul bidimensional
-        String[] clasamentColumns = {"Loc", "Echipa", "Puncte"};
+        String[] clasamentColumns = {"Loc", "Echipa", "Puncte", "Goluri Date", "Goluri Primite", "Victorii", "Egaluri", "Infrangeri"};
         // PARAMETRII: DefaultTableModel( datele din randuri, coloane )
         DefaultTableModel clasamentModel = new DefaultTableModel(data, clasamentColumns) {
             @Override
@@ -112,6 +148,7 @@ public class ClasamentEchipe extends JFrame{
         // se seteaza modelul de tabel pentru tabelul Clasament
         Clasament.setModel(clasamentModel);
 
+        adjustColumnWidths(Clasament);
         // se repeta aceeasi procedura pentru tabelul Live
         String[] liveColumns = {"Meci ID", "Gazda", "Oaspete", "Scor", "Locatie"};
 

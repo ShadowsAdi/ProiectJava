@@ -57,11 +57,17 @@ public class Meciuri {
                 // calcularea punctelor in functie de goluri
                 if (goluriEchipa1 > goluriEchipa2) {
                     echipa1.setPuncte(3);
+                    echipa1.setVictorii();
+                    echipa2.setInfrangeri();
                 } else if(goluriEchipa1 < goluriEchipa2) {
                     echipa2.setPuncte(3);
+                    echipa2.setVictorii();
+                    echipa1.setInfrangeri();
                 }else{
                     echipa1.setPuncte(1);
                     echipa2.setPuncte(1);
+                    echipa1.setEgaluri();
+                    echipa2.setEgaluri();
                 }
             }
         }

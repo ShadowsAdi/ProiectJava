@@ -7,6 +7,9 @@ public class Echipa{
     private String locatia;
     private int goluriPrimite;
     private int goluriDate;
+    private int victorii;
+    private int egaluri;
+    private int infrangeri;
 
     Echipa(String nume, String locatie){
         this.nume = nume;
@@ -47,6 +50,30 @@ public class Echipa{
 
     public String getLocatia() {
         return locatia;
+    }
+
+    public void setVictorii(){
+        this.victorii = victorii + 1;
+    }
+
+    public int getVictorii(){
+        return victorii;
+    }
+
+    public void setEgaluri(){
+        this.egaluri = egaluri + 1;
+    }
+
+    public int getEgaluri(){
+        return egaluri;
+    }
+
+    public void setInfrangeri(){
+        this.infrangeri = infrangeri + 1;
+    }
+
+    public int getInfrangeri(){
+        return infrangeri;
     }
 
 }
