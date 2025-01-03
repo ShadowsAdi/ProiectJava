@@ -309,6 +309,8 @@ public class ClasamentEchipe extends JFrame{
     // functia care formateaza informatiile despre echipa selectata
     private static JLabel getDialogText(boolean isLive, int row, String column) {
         // se creeaza un label pentru textul care va fi afisat in fereastra de dialog
+
+        // de uitat asta
         JLabel dialogText = new JLabel();
 
         // se preiau datele despre echipe si meciuri din HashMap-uri

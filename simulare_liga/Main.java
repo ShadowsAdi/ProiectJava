@@ -41,7 +41,7 @@ public class Main {
         createTriggers(conn);
 
         // preluam echipele din baza de date
-        String query = "SELECT * FROM `Echipe`";
+        String query = "SELECT * FROM `Echipe`";//" ORDER BY DESC";
         // boolean pentru a verifica daca s-au gasit echipe in baza de date
         boolean bFoundTeams = false;
         try {
