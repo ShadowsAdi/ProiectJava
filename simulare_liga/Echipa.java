@@ -52,24 +52,24 @@ public class Echipa{
         return locatia;
     }
 
-    public void setVictorii(){
-        this.victorii = victorii + 1;
+    public void setVictorii(int victorie){
+        this.victorii = victorie;
     }
 
     public int getVictorii(){
         return victorii;
     }
 
-    public void setEgaluri(){
-        this.egaluri = egaluri + 1;
+    public void setEgaluri(int egal){
+        this.egaluri = egal;
     }
 
     public int getEgaluri(){
         return egaluri;
     }
 
-    public void setInfrangeri(){
-        this.infrangeri = infrangeri + 1;
+    public void setInfrangeri(int infrangere){
+        this.infrangeri = infrangere;
     }
 
     public int getInfrangeri(){

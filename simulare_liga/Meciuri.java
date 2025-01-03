@@ -57,17 +57,17 @@ public class Meciuri {
                 // calcularea punctelor in functie de goluri
                 if (goluriEchipa1 > goluriEchipa2) {
                     echipa1.setPuncte(3);
-                    echipa1.setVictorii();
-                    echipa2.setInfrangeri();
+                    echipa1.setVictorii(echipa1.getVictorii()+1);
+                    echipa2.setInfrangeri(echipa2.getInfrangeri()+1);
                 } else if(goluriEchipa1 < goluriEchipa2) {
                     echipa2.setPuncte(3);
-                    echipa2.setVictorii();
-                    echipa1.setInfrangeri();
+                    echipa2.setVictorii(echipa2.getVictorii()+1);
+                    echipa1.setInfrangeri(echipa1.getInfrangeri()+1);
                 }else{
                     echipa1.setPuncte(1);
                     echipa2.setPuncte(1);
-                    echipa1.setEgaluri();
-                    echipa2.setEgaluri();
+                    echipa1.setEgaluri(echipa1.getEgaluri()+1);
+                    echipa2.setEgaluri(echipa2.getEgaluri()+1);
                 }
             }
         }
