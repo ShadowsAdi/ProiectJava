@@ -56,15 +56,13 @@ public class ClasamentEchipe extends JFrame{
         pack();
         setVisible(true);
 
-        // se initializeaza fereastra de dialog care afiseaza informatii despre echipa selectata din orice tabel
-        ClasamentDialog = new JDialog();
-        ClasamentDialog.setTitle("Informatii Echipa");
-        // se seteaza un border pentru fereastra de dialog
-        ClasamentDialog.getRootPane().setBorder(new LineBorder(Color.GRAY, 3));
-        // se seteaza fereastra de dialog sa nu aiba bara de titlu ( minimize, maximize, close si iconita aia java )
-        ClasamentDialog.setUndecorated(true);
-
-        ClasamentDialog.setSize(200, 200);
+        Timer timer = new Timer(500, _ -> {
+            if (ClasamentDialog != null && !ClasamentDialog.hasFocus()) {
+                ClasamentDialog.dispose();
+            }
+        });
+        timer.setRepeats(true);
+        timer.start();
     }
 
     private List<Echipa> order_by_puncte(Map<String, Echipa> echipe) {
@@ -240,6 +238,9 @@ public class ClasamentEchipe extends JFrame{
                 // se preia valoarea de la randul si coloana la care s-a dat click
                 Object value = table.getValueAt(row, column);
 
+                // se initializeaza fereastra de dialog care afiseaza informatii despre echipa selectata din orice tabel
+                ClasamentDialog = createDialog();
+
                 // se verifica daca randul si coloana sunt valide
                 if (row >= 0 && column >= 0) {
                     // se verifica daca valoarea de la randul si coloana la care s-a dat click este o echipa
@@ -280,14 +281,29 @@ public class ClasamentEchipe extends JFrame{
                     }
                 }
                 // daca randul si coloana nu sunt valide, se ascunde fereastra de dialog
-                else
-                {
-                    if (ClasamentDialog != null) {
-                        ClasamentDialog.setVisible(false);
-                    }
-                }
+     /*           else {
+
+                }*/
             }
         });
+    }
+
+    private static JDialog createDialog(){
+        // se initializeaza fereastra de dialog care afiseaza informatii despre echipa selectata din orice tabel
+        if(ClasamentDialog != null) {
+            ClasamentDialog.dispose();
+        }
+
+        ClasamentDialog = new JDialog();
+        ClasamentDialog.setTitle("Informatii Echipa");
+        // se seteaza un border pentru fereastra de dialog
+        ClasamentDialog.getRootPane().setBorder(new LineBorder(Color.GRAY, 3));
+        // se seteaza fereastra de dialog sa nu aiba bara de titlu ( minimize, maximize, close si iconita aia java )
+        ClasamentDialog.setUndecorated(true);
+
+        ClasamentDialog.setSize(200, 200);
+
+        return ClasamentDialog;
     }
 
     // functia care formateaza informatiile despre echipa selectata
