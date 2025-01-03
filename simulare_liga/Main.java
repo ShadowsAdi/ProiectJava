@@ -23,7 +23,7 @@ public class Main {
     private static int nrDeEchipe = 0;
 
     public static void main(String[] args) {
-        // preluam conexiunea la baza de date din singleton-ul Databawse
+        // preluam conexiunea la baza de date din singleton-ul Database
         Connection conn = Database.getInstance().getConnection();
 
         // assert = daca conditia e falsa, programul da eroare.
@@ -76,7 +76,7 @@ public class Main {
                         }
 
                         // preluam datele din ResultSet si le introducem in HashMap-ul de echipe
-                        // primul parametru este numele echipei, al doilea parametru este numarul de puncte al echipei
+                        // primul parametru este numele echipei, al doilea parametru este locatia echipei
                         Echipa echipa = new Echipa(rs.getString("echipa"), rs.getString("locatie"));
 
                         // introducem echipa in HashMap-ul de echipe

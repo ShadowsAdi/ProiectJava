@@ -5,6 +5,7 @@ import javax.swing.border.LineBorder;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.List;
 
@@ -64,6 +65,14 @@ public class ClasamentEchipe extends JFrame{
         ClasamentDialog.setSize(200, 200);
     }
 
+    private List<Echipa> order_by_puncte(Map<String, Echipa> echipe) {
+        // Convertim valorile HashMap-ului într-o listă
+        List<Echipa> listaEchipe = new ArrayList<>(echipe.values());
+        // Sortăm lista descrescător după puncte
+        listaEchipe.sort((e1, e2) -> Integer.compare(e2.getPuncte(), e1.getPuncte()));
+        return listaEchipe;
+    }
+
     // functia care actualizeaza datele din tabele
     private void updateTables() {
         // preluam HashMap-urile echipelor din clasa Main.main
@@ -75,11 +84,13 @@ public class ClasamentEchipe extends JFrame{
         // rowCount = numarul de echipe, 3 coloane: Loc, Echipa, Puncte
         String[][] data = new String[rowCount][3];
 
+        List<Echipa> orderedEchipeInstance = order_by_puncte(echipeInstance);
         int i = 0;
         // se parcurge HashMap-ul si se adauga datele in array-ul bidimensional
-        for (Echipa echipa : echipeInstance.values()) {
+        for (Echipa echipa : orderedEchipeInstance) {
+
             // prima coloana = indexul echipei in HashMap
-            data[i][0] = String.valueOf(i);
+            data[i][0] = String.valueOf(i+1);
             // a doua coloana = numele echipei
             data[i][1] = echipa.getNume();
             // a treia coloana = punctele echipei
