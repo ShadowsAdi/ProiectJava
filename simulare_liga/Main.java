@@ -10,7 +10,7 @@ import java.sql.*;
 //sa porneasca de aici gen aplicatia, good practice
 public class Main {
      /* Cred ca un hashmap e mai ok totusi*/
-    private static Map<String, Echipa> echipe = new HashMap<>();
+    private static final Map<String, Echipa> echipe = new HashMap<>();
 
     public static Map<String, Echipa> getEchipe() {
         return echipe;
@@ -24,16 +24,13 @@ public class Main {
 
     private static int nrDeEchipe = 0;
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         // preluam conexiunea la baza de date din singleton-ul Database
-        Connection conn = Database.getInstance().getConnection();
+        Database db = Database.getInstance();
+        Connection conn = db.getConnection();
 
         // assert = daca conditia e falsa, programul da eroare.
         // echivalent cu:
-        /*
-        if(conn == null) {
-            throw new AssertionError();
-        }*/
         assert conn != null;
 
         // creem tabelele in baza de date
@@ -110,9 +107,8 @@ public class Main {
                 System.out.println("Nume echipa " + (i + 1) + ":");
                 String nume = scanner.nextLine();
 
-                System.out.println("Puncte echipa " + (i + 1) + ":");
-                int puncte = scanner.nextInt();
                 scanner.nextLine();
+
                 System.out.println("Locatie echipa " + (i + 1) + ":");
                 String locatia = scanner.nextLine();
 
@@ -149,10 +145,14 @@ public class Main {
 
         // instantiem un obiect de tip Meciuri pentru a declara meciurilor si setarea scorului fiecarui meci
         meciuri = new Meciuri(nrDeEchipe, echipe);
-        meciuri.setScore();
+
+        // OPRIT MOMENTAN
+        //meciuri.setScore();
 
         // asta iar e irelevant, trebuie in incadrat la DEBUG
-        afisareEchipe(echipe);
+        if(Constants.DEBUG) {
+            afisareEchipe(echipe);
+        }
     }
 
     public static void afisareEchipe(Map<String, Echipa> echipe){

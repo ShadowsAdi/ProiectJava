@@ -5,7 +5,6 @@ import javax.swing.plaf.basic.BasicScrollBarUI;
 import java.awt.*;
 
 public class ModernScrollBarUI extends BasicScrollBarUI {
-    private static final int THUMB_SIZE = 8;
     private static final Color THUMB_COLOR = new Color(180, 180, 180);
 
     @Override

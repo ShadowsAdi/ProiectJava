@@ -36,7 +36,7 @@ public class Database {
     }
 
     // Returneaza conexiunea la baza de date sau null daca nu s-a putut realiza conexiunea
-    public static Connection getConnection() {
+    public Connection getConnection() {
         if(conn != null)
             return conn;
 

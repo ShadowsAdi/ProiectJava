@@ -12,6 +12,8 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.List;
@@ -19,23 +21,21 @@ import java.util.List;
 import static simulare_liga.Main.getEchipe;
 import static simulare_liga.Main.getMeciuri;
 
+import static simulare_liga.Meciuri.getMeciuriMap;
 import static simulare_liga.ui.ModernTable.setupModernStyle;
 import static simulare_liga.ui.ModernScrollPane.setupModernStyle;
 
 public class ClasamentEchipe extends JFrame {
-
-    private static final Color HEADER_BG = new Color(33, 41, 51);
-    private static final Color HEADER_FG = new Color(255, 255, 255);
-    private static final Color ROW_BG = new Color(245, 247, 250);
-    private static final Color ALT_ROW_BG = new Color(255, 255, 255);
-    private static final Color SELECTION_BG = new Color(51, 153, 255);
-
     // ( 1 ) de aici
     private JTable Clasament;
     private JTable Live;
     private JScrollPane ScrollTableClasament;
     private JScrollPane ScrollTableLive;
     private JPanel AppPanel;
+    private JFormattedTextField inputText;
+    private JButton butonRandomizare;
+    private JButton inserareDateButton;
+    private JTextArea outputText;
     private static JDialog ClasamentDialog;
     // ( 1 ) pana aici
     // sunt elementele grafice ale aplicatiei definite in Swing form designer
@@ -43,6 +43,14 @@ public class ClasamentEchipe extends JFrame {
     // aici se stocheaza HashMap-urile echipelor si meciurilor in desfasurare
     private static Map<String, Echipa> echipeInstance = null;
     private static Meciuri meciuriInstance = null;
+
+    private static final Map<String, Echipa> Echipe = getEchipe();
+
+    private int currMatchIndex = 0;
+    private final List<String> listaNumeEchipe = new ArrayList<>(Echipe.keySet());
+
+    private int nrDeMeciuri = 0;
+    private final Map<Integer, PairMeci> meciOffset = getMeciuriMap();
 
     // in clasa Main, funtia main, se apeleaza constructorl acestei clase pentru a porni interfata grafica
     public ClasamentEchipe() {
@@ -66,6 +74,14 @@ public class ClasamentEchipe extends JFrame {
 
         // se apeleaza functia care construieste si actualizeaza datele din tabele
         updateTables();
+
+        buttonsActions();
+
+        outputText.setEditable(false);
+        outputText.setLineWrap(true);
+        outputText.setWrapStyleWord(true);
+        outputText.setVisible(false);
+        inputText.setVisible(false);
 
         // se apeleaza functia care actualizeaza datele din tabele la fiecare 5 secunde ( SwingWorker == Thread / Runnable kind of )
         startAutoRefresh();
@@ -109,7 +125,7 @@ public class ClasamentEchipe extends JFrame {
 
         for (int col = 0; col < table.getColumnCount(); col++) {
             TableColumn column = table.getColumnModel().getColumn(col);
-            int maxWidth = 0;
+            int maxWidth;
 
             // Check header width
             TableCellRenderer headerRenderer = table.getTableHeader().getDefaultRenderer();
@@ -188,7 +204,7 @@ public class ClasamentEchipe extends JFrame {
         // Aici o sa fie si comparatorul.
         String[][] dataLive = new String[0][4];
         if (meciuriInstance != null) {
-            Map<Integer, PairMeci> meciuriMap = meciuriInstance.getMeciuriMap();
+            Map<Integer, PairMeci> meciuriMap = getMeciuriMap();
 
             rowCount = meciuriMap.size();
 
@@ -225,6 +241,166 @@ public class ClasamentEchipe extends JFrame {
         Live.setModel(liveModel);
     }
 
+    private void buttonsActions() {
+        inputText.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    inserareDateButton.doClick(); // Simulate a button click
+                }
+            }
+        });
+
+        inserareDateButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                inputText.setVisible(true);
+                inserareDateButton.setVisible(true);
+                outputText.setVisible(true);
+                butonRandomizare.setVisible(false);
+
+                redirectSystemOutToTextArea(outputText);
+
+                if (currMatchIndex == 0) {
+                    outputText.setText("");
+                    promptNextMatch();
+                    currMatchIndex++;
+                } else {
+                    String text = inputText.getText();
+                    if (!text.trim().isEmpty() && text.matches("\\d+-\\d+")) {
+                        String[] scores = text.split("-");
+                        int firstScore = Integer.parseInt(scores[0].trim());
+                        int secondScore = Integer.parseInt(scores[1].trim());
+
+                        updateMatchScore(firstScore, secondScore);
+
+                        currMatchIndex++;
+                        outputText.setText("");
+                        inputText.setText("");
+                        if (currMatchIndex < listaNumeEchipe.size() * (listaNumeEchipe.size() - 1)) {
+                            promptNextMatch();
+                        } else {
+                            System.out.println("Scorurile tuturor meciurilor au fost completate!\n");
+                            inputText.setVisible(false);
+                            inserareDateButton.setVisible(false);
+                            outputText.setForeground(new Color(67, 34, 214));
+                            SwingWorker<Void, Void> worker = new SwingWorker<>() {
+                                @Override
+                                protected Void doInBackground() throws InterruptedException {
+                                    Thread.sleep(5000);
+                                    outputText.setVisible(false);
+                                    return null;
+                                }
+                            };
+
+                            worker.execute();
+                        }
+                    } else {
+                        System.out.println("Format scor valid: X-Y\n");
+                    }
+                }
+            }
+
+            private void promptNextMatch() {
+                int i = currMatchIndex / (listaNumeEchipe.size() - 1);
+                int j = currMatchIndex % (listaNumeEchipe.size() - 1);
+                if (j >= i) {
+                    j++;
+                }
+                String team1 = listaNumeEchipe.get(i);
+                String team2 = listaNumeEchipe.get(j);
+
+                outputText.append("Introdu scorul intre \"" + team1 + "\" vs \"" + team2 + "\" \n(format valid: X-Y):\n");
+            }
+
+            private void updateMatchScore(int firstScore, int secondScore) {
+                int i = currMatchIndex / (listaNumeEchipe.size() - 1);
+                int j = currMatchIndex % (listaNumeEchipe.size() - 1);
+                if (j >= i) {
+                    j++;
+                }
+
+                String team1 = listaNumeEchipe.get(i);
+                String team2 = listaNumeEchipe.get(j);
+
+                Echipa echipa1 = Echipe.get(team1);
+                Echipa echipa2 = Echipe.get(team2);
+
+                echipa1.setGoluriDate(echipa1.getGoluriDate() + firstScore);
+                echipa1.setGoluriPrimite(echipa1.getGoluriPrimite() + secondScore);
+                echipa2.setGoluriDate(echipa2.getGoluriDate() + secondScore);
+                echipa2.setGoluriPrimite(echipa2.getGoluriPrimite() + firstScore);
+
+                PairMeci meci = new PairMeci(echipa1, echipa2);
+                meciOffset.put(nrDeMeciuri, meci);
+
+                meci.setGoluriDateEC1(firstScore);
+                meci.setGoluriDateEC2(secondScore);
+                // calcularea punctelor in functie de goluri
+                if (firstScore > secondScore) {
+                    echipa1.setPuncte(3);
+                    echipa1.setVictorii(echipa1.getVictorii()+1);
+                    echipa2.setInfrangeri(echipa2.getInfrangeri()+1);
+                } else if(firstScore < secondScore) {
+                    echipa2.setPuncte(3);
+                    echipa2.setVictorii(echipa2.getVictorii()+1);
+                    echipa1.setInfrangeri(echipa1.getInfrangeri()+1);
+                } else {
+                    echipa1.setPuncte(1);
+                    echipa2.setPuncte(1);
+                    echipa1.setEgaluri(echipa1.getEgaluri()+1);
+                    echipa2.setEgaluri(echipa2.getEgaluri()+1);
+                }
+
+                nrDeMeciuri++;
+            }
+        });
+
+        butonRandomizare.addActionListener(_ -> {
+
+            inputText.setVisible(false);
+            inserareDateButton.setVisible(false);
+            butonRandomizare.setVisible(false);
+            outputText.setVisible(false);
+
+            SwingWorker<Void, Void> worker = new SwingWorker<>() {
+                @Override
+                protected Void doInBackground() {
+                    Meciuri meciuriVar = getMeciuri();
+                    try {
+                        meciuriVar.setScoreRandom();
+                    } catch (InterruptedException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                    return null;
+                }
+
+                @Override
+                protected void done() {
+                    System.out.println("Randomization completed!");
+                }
+            };
+
+            worker.execute();
+        });
+    }
+
+    private void redirectSystemOutToTextArea(JTextArea textArea) {
+        OutputStream outputStream = new OutputStream() {
+            @Override
+            public void write(int b) {
+                SwingUtilities.invokeLater(() -> {
+                    textArea.append(String.valueOf((char) b));
+                    textArea.setCaretPosition(textArea.getDocument().getLength());
+                });
+            }
+        };
+
+        PrintStream printStream = new PrintStream(outputStream, true);
+        System.setOut(printStream);
+        System.setErr(printStream);
+    }
+
     // functia care actualizeaza datele din tabele la fiecare 5 secunde
     private void startAutoRefresh() {
         // se creeaza un SwingWorker care ruleaza in background si actualizeaza datele din tabele la fiecare 5 secunde ( 5000 ms )
@@ -234,7 +410,7 @@ public class ClasamentEchipe extends JFrame {
                 // se asteapta 5 secunde si se apeleaza functia de actualizare a datelor din tabele
                 for (;;) {
                     // se asteapta 5 secunde in firul de executie ( thread-ul ) curent
-                    Thread.sleep(5000);
+                    Thread.sleep(1100);
                     // se apeleaza functia de actualizare a datelor din tabele
                     publish();
                 }
@@ -311,10 +487,6 @@ public class ClasamentEchipe extends JFrame {
                         }
                     }
                 }
-                // daca randul si coloana nu sunt valide, se ascunde fereastra de dialog
-     /*           else {
-
-                }*/
             }
         });
     }
@@ -370,7 +542,7 @@ public class ClasamentEchipe extends JFrame {
         else
         {
             // se preiau datele despre meciuri din HashMap si se adauga in array-ul bidimensional
-            Map<Integer, PairMeci> meciuriMap = meciuriInstance.getMeciuriMap();
+            Map<Integer, PairMeci> meciuriMap = getMeciuriMap();
             // meciuriMap.size() = numarul de meciuri, 5 coloane: Nume Echipa, Puncte, Goluri date, Goluri primite, Locatia meciului
             data = new String[meciuriMap.size()][5];
             int i = 0;
