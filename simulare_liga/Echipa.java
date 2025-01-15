@@ -1,16 +1,20 @@
 package simulare_liga;
 
 public class Echipa{
-
+    private int id;
     private int puncte;
     private String nume;
     private String locatia;
     private int goluriPrimite;
     private int goluriDate;
+    private int victorii;
+    private int egaluri;
+    private int infrangeri;
 
-    Echipa(String nume, int puncte){
+    Echipa(int id, String nume, String locatie) {
+        this.id = id;
         this.nume = nume;
-        this.puncte = puncte;
+        this.locatia = locatie;
     }
 
     public int getPuncte() {
@@ -49,7 +53,31 @@ public class Echipa{
         return locatia;
     }
 
-    public void setLocatia(String locatia) {
-        this.locatia = locatia;
+    public void setVictorii(int victorie){
+        this.victorii = victorie;
+    }
+
+    public int getVictorii(){
+        return victorii;
+    }
+
+    public void setEgaluri(int egal){
+        this.egaluri = egal;
+    }
+
+    public int getEgaluri(){
+        return egaluri;
+    }
+
+    public void setInfrangeri(int infrangere){
+        this.infrangeri = infrangere;
+    }
+
+    public int getInfrangeri(){
+        return infrangeri;
+    }
+
+    public int getId() {
+        return id;
     }
 }

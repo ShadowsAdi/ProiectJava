@@ -1,5 +1,7 @@
 package simulare_liga;
 
+import simulare_liga.ui.ClasamentEchipe;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
@@ -8,7 +10,7 @@ import java.sql.*;
 //sa porneasca de aici gen aplicatia, good practice
 public class Main {
      /* Cred ca un hashmap e mai ok totusi*/
-    private static Map<String, Echipa> echipe = new HashMap<>();
+    private static final Map<String, Echipa> echipe = new HashMap<>();
 
     public static Map<String, Echipa> getEchipe() {
         return echipe;
@@ -22,16 +24,13 @@ public class Main {
 
     private static int nrDeEchipe = 0;
 
-    public static void main(String[] args) {
-        // preluam conexiunea la baza de date din singleton-ul Databawse
-        Connection conn = Database.getInstance().getConnection();
+    public static void main(String[] args) throws InterruptedException {
+        // preluam conexiunea la baza de date din singleton-ul Database
+        Database db = Database.getInstance();
+        Connection conn = db.getConnection();
 
         // assert = daca conditia e falsa, programul da eroare.
         // echivalent cu:
-        /*
-        if(conn == null) {
-            throw new AssertionError();
-        }*/
         assert conn != null;
 
         // creem tabelele in baza de date
@@ -76,10 +75,8 @@ public class Main {
                         }
 
                         // preluam datele din ResultSet si le introducem in HashMap-ul de echipe
-                        // primul parametru este numele echipei, al doilea parametru este numarul de puncte al echipei
-                        Echipa echipa = new Echipa(rs.getString("echipa"), rs.getInt("puncte"));
-                        // setam locatia echipei in obiectul Echipa
-                        echipa.setLocatia(rs.getString("Locatie"));
+                        // primul parametru este numele echipei, al doilea parametru este locatia echipei
+                        Echipa echipa = new Echipa(rs.getInt("ID"), rs.getString("echipa"), rs.getString("locatie"));
 
                         // introducem echipa in HashMap-ul de echipe
                         // key = numele echipei, value = obiectul Echipa
@@ -110,14 +107,10 @@ public class Main {
                 System.out.println("Nume echipa " + (i + 1) + ":");
                 String nume = scanner.nextLine();
 
-                System.out.println("Puncte echipa " + (i + 1) + ":");
-                int puncte = scanner.nextInt();
-                scanner.nextLine();
                 System.out.println("Locatie echipa " + (i + 1) + ":");
-                String locatie = scanner.nextLine();
+                String locatia = scanner.nextLine();
 
-                Echipa echipa = new Echipa(nume, puncte);
-                echipa.setLocatia(locatie);
+                Echipa echipa = new Echipa(i + 1, nume, locatia);
 
                 // introducem echipa in HashMap-ul de echipe
                 // key = numele echipei, value = obiectul Echipa
@@ -150,10 +143,59 @@ public class Main {
 
         // instantiem un obiect de tip Meciuri pentru a declara meciurilor si setarea scorului fiecarui meci
         meciuri = new Meciuri(nrDeEchipe, echipe);
-        meciuri.setScore();
+
+        // OPRIT MOMENTAN
+        //meciuri.setScore();
 
         // asta iar e irelevant, trebuie in incadrat la DEBUG
-        afisareEchipe(echipe);
+        if(Constants.DEBUG) {
+            afisareEchipe(echipe);
+        }
+    }
+
+    public static void updateEchipe(Connection conn) {
+        String query;
+        for (Echipa echipa : echipe.values()) {
+            // query-ul de update in baza de date
+            query = "UPDATE `Echipe` SET `Puncte` = ? WHERE `Echipa` = ?";
+            try {
+                try (PreparedStatement pstmt = conn.prepareStatement(query)) {
+                    // setam parametrii query-ului cu datele echipei curente
+                    // inlocuind pe rand "?"-urile din query cu datele echipei
+                    pstmt.setInt(1, echipa.getPuncte());
+                    pstmt.setString(2, echipa.getNume());
+                    pstmt.executeUpdate();
+                    }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+
+        updateStats(conn);
+    }
+
+    public static void updateStats(Connection conn) {
+        String query;
+        for (Echipa echipa : echipe.values()) {
+            // query-ul de update in baza de date
+            query = "UPDATE `Statistici` SET `meciuri_jucate` = ?, `victorii` = ?, `infrangeri` = ?, `egaluri` = ?, `goluri_marcate` = ?, `goluri_primite` = ? WHERE `ID_Echipa` = ?";
+            try {
+                try (PreparedStatement pstmt = conn.prepareStatement(query)) {
+                    int meciuri_jucate = echipa.getVictorii() + echipa.getInfrangeri() + echipa.getEgaluri();
+                    // setam parametrii query-ului cu datele echipei curente
+                    pstmt.setInt(1, meciuri_jucate);
+                    pstmt.setInt(2, echipa.getVictorii());
+                    pstmt.setInt(3, echipa.getInfrangeri());
+                    pstmt.setInt(4, echipa.getEgaluri());
+                    pstmt.setInt(5, echipa.getGoluriDate());
+                    pstmt.setInt(6, echipa.getGoluriPrimite());
+                    pstmt.setInt(7, echipa.getId());
+                    pstmt.executeUpdate();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public static void afisareEchipe(Map<String, Echipa> echipe){

@@ -1,7 +1,6 @@
 package simulare_liga;
 
 public class Constants {
-
     private static final String URL = "jdbc:mysql://89.40.105.3:3306/csa_2153";
     private static final String USERNAME = "csa_2153";
     private static final String PASSWORD = "vTuT9uZJ8?deWgc";
