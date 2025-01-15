@@ -76,7 +76,7 @@ public class Main {
 
                         // preluam datele din ResultSet si le introducem in HashMap-ul de echipe
                         // primul parametru este numele echipei, al doilea parametru este locatia echipei
-                        Echipa echipa = new Echipa(rs.getString("echipa"), rs.getString("locatie"));
+                        Echipa echipa = new Echipa(rs.getInt("ID"), rs.getString("echipa"), rs.getString("locatie"));
 
                         // introducem echipa in HashMap-ul de echipe
                         // key = numele echipei, value = obiectul Echipa
@@ -107,12 +107,10 @@ public class Main {
                 System.out.println("Nume echipa " + (i + 1) + ":");
                 String nume = scanner.nextLine();
 
-                scanner.nextLine();
-
                 System.out.println("Locatie echipa " + (i + 1) + ":");
                 String locatia = scanner.nextLine();
 
-                Echipa echipa = new Echipa(nume, locatia);
+                Echipa echipa = new Echipa(i + 1, nume, locatia);
 
                 // introducem echipa in HashMap-ul de echipe
                 // key = numele echipei, value = obiectul Echipa
@@ -152,6 +150,51 @@ public class Main {
         // asta iar e irelevant, trebuie in incadrat la DEBUG
         if(Constants.DEBUG) {
             afisareEchipe(echipe);
+        }
+    }
+
+    public static void updateEchipe(Connection conn) {
+        String query;
+        for (Echipa echipa : echipe.values()) {
+            // query-ul de update in baza de date
+            query = "UPDATE `Echipe` SET `Puncte` = ? WHERE `Echipa` = ?";
+            try {
+                try (PreparedStatement pstmt = conn.prepareStatement(query)) {
+                    // setam parametrii query-ului cu datele echipei curente
+                    // inlocuind pe rand "?"-urile din query cu datele echipei
+                    pstmt.setInt(1, echipa.getPuncte());
+                    pstmt.setString(2, echipa.getNume());
+                    pstmt.executeUpdate();
+                    }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+
+        updateStats(conn);
+    }
+
+    public static void updateStats(Connection conn) {
+        String query;
+        for (Echipa echipa : echipe.values()) {
+            // query-ul de update in baza de date
+            query = "UPDATE `Statistici` SET `meciuri_jucate` = ?, `victorii` = ?, `infrangeri` = ?, `egaluri` = ?, `goluri_marcate` = ?, `goluri_primite` = ? WHERE `ID_Echipa` = ?";
+            try {
+                try (PreparedStatement pstmt = conn.prepareStatement(query)) {
+                    int meciuri_jucate = echipa.getVictorii() + echipa.getInfrangeri() + echipa.getEgaluri();
+                    // setam parametrii query-ului cu datele echipei curente
+                    pstmt.setInt(1, meciuri_jucate);
+                    pstmt.setInt(2, echipa.getVictorii());
+                    pstmt.setInt(3, echipa.getInfrangeri());
+                    pstmt.setInt(4, echipa.getEgaluri());
+                    pstmt.setInt(5, echipa.getGoluriDate());
+                    pstmt.setInt(6, echipa.getGoluriPrimite());
+                    pstmt.setInt(7, echipa.getId());
+                    pstmt.executeUpdate();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
     }
 

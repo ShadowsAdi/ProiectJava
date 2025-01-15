@@ -1,5 +1,6 @@
 package simulare_liga.ui;
 
+import simulare_liga.Database;
 import simulare_liga.Echipa;
 import simulare_liga.Meciuri;
 import simulare_liga.PairMeci;
@@ -14,13 +15,14 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.List;
 
-import static simulare_liga.Main.getEchipe;
-import static simulare_liga.Main.getMeciuri;
-
+import static simulare_liga.Main.*;
 import static simulare_liga.Meciuri.getMeciuriMap;
 import static simulare_liga.ui.ModernTable.setupModernStyle;
 import static simulare_liga.ui.ModernScrollPane.setupModernStyle;
@@ -289,6 +291,7 @@ public class ClasamentEchipe extends JFrame {
                                 protected Void doInBackground() throws InterruptedException {
                                     Thread.sleep(5000);
                                     outputText.setVisible(false);
+                                    insertIntoDB();
                                     return null;
                                 }
                             };
@@ -336,21 +339,7 @@ public class ClasamentEchipe extends JFrame {
 
                 meci.setGoluriDateEC1(firstScore);
                 meci.setGoluriDateEC2(secondScore);
-                // calcularea punctelor in functie de goluri
-                if (firstScore > secondScore) {
-                    echipa1.setPuncte(3);
-                    echipa1.setVictorii(echipa1.getVictorii()+1);
-                    echipa2.setInfrangeri(echipa2.getInfrangeri()+1);
-                } else if(firstScore < secondScore) {
-                    echipa2.setPuncte(3);
-                    echipa2.setVictorii(echipa2.getVictorii()+1);
-                    echipa1.setInfrangeri(echipa1.getInfrangeri()+1);
-                } else {
-                    echipa1.setPuncte(1);
-                    echipa2.setPuncte(1);
-                    echipa1.setEgaluri(echipa1.getEgaluri()+1);
-                    echipa2.setEgaluri(echipa2.getEgaluri()+1);
-                }
+                Meciuri.calcPuncte(firstScore, secondScore, echipa1, echipa2);
 
                 nrDeMeciuri++;
             }
@@ -377,6 +366,7 @@ public class ClasamentEchipe extends JFrame {
 
                 @Override
                 protected void done() {
+                    insertIntoDB();
                     System.out.println("Randomization completed!");
                 }
             };
@@ -581,5 +571,30 @@ public class ClasamentEchipe extends JFrame {
         return dialogText;
     }
 
+    private void insertIntoDB() {
+        Database db = Database.getInstance();
+        Connection conn = db.getConnection();
+        updateEchipe(conn);
+        meciuriInstance = getMeciuri();
+        if (meciuriInstance != null) {
+            Map<Integer, PairMeci> meciuriMap = getMeciuriMap();
+            for (Integer key : meciuriMap.keySet()) {
+                PairMeci meci = meciuriMap.get(key);
+                // query-ul de inserare in baza de date
+                String query = "INSERT INTO `Meciuri` (`ID_Gazda`, `ID_Oaspete`, `Scor_gazda`, `Scor_oapete`) VALUES (?, ?, ?, ?)";
+                try {
+                    try (PreparedStatement pstmt = conn.prepareStatement(query)) {
+                        pstmt.setInt(1, meci.getEc1().getId());
+                        pstmt.setInt(2, meci.getEc2().getId());
+                        pstmt.setInt(3, meci.getGoluriDateEC1());
+                        pstmt.setInt(4, meci.getGoluriDateEC2());
+                        pstmt.executeUpdate();
+                    }
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
 
 }

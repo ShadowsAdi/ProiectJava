@@ -5,7 +5,7 @@ import java.util.*;
 public class Meciuri {
     private static int nrDeEchipe;
     private static Map<String, Echipa> Echipe;
-    
+
     public static final Map<Integer, PairMeci> meciuriMap = new HashMap<>();
 
     public static Map<Integer, PairMeci> getMeciuriMap() {
@@ -44,6 +44,8 @@ public class Meciuri {
                 echipa2.setGoluriDate(echipa2.getGoluriDate() + goluriEchipa2);
                 echipa2.setGoluriPrimite(echipa2.getGoluriPrimite() + goluriEchipa1);
 
+                calcPuncte(goluriEchipa1, goluriEchipa2, echipa1, echipa2);
+
                 // folosit pentru a afisa in timp real scorul la fiecare meci
                 nrDeMeciuri++;
                 // pt fiecare meci se retine cate goluri a dat echipa1 si echipa2
@@ -56,7 +58,27 @@ public class Meciuri {
             }
         }
 
-        afisareEchipe(Echipe);
+        if(Constants.DEBUG) {
+            afisareEchipe(Echipe);
+        }
+    }
+
+    public static void calcPuncte(int firstScore, int secondScore, Echipa echipa1, Echipa echipa2) {
+        // calcularea punctelor in functie de goluri
+        if (firstScore > secondScore) {
+            echipa1.setPuncte(echipa1.getPuncte() + 3);
+            echipa1.setVictorii(echipa1.getVictorii() + 1);
+            echipa2.setInfrangeri(echipa2.getInfrangeri() + 1);
+        } else if(firstScore < secondScore) {
+            echipa2.setPuncte(echipa2.getPuncte() + 3);
+            echipa2.setVictorii(echipa2.getVictorii() + 1);
+            echipa1.setInfrangeri(echipa1.getInfrangeri() + 1);
+        } else {
+            echipa1.setPuncte(echipa1.getPuncte() + 1);
+            echipa2.setPuncte(echipa2.getPuncte() + 1);
+            echipa1.setEgaluri(echipa1.getEgaluri() + 1);
+            echipa2.setEgaluri(echipa2.getEgaluri() + 1);
+        }
     }
 
     public static void afisareEchipe(Map<String, Echipa> echipe){

@@ -1,7 +1,7 @@
 package simulare_liga;
 
 public class Echipa{
-
+    private int id;
     private int puncte;
     private String nume;
     private String locatia;
@@ -11,7 +11,8 @@ public class Echipa{
     private int egaluri;
     private int infrangeri;
 
-    Echipa(String nume, String locatie){
+    Echipa(int id, String nume, String locatie) {
+        this.id = id;
         this.nume = nume;
         this.locatia = locatie;
     }
@@ -21,7 +22,7 @@ public class Echipa{
     }
 
     public void setPuncte(int puncte) {
-        this.puncte = this.puncte + puncte;
+        this.puncte = puncte;
     }
 
     public String getNume() {
@@ -76,4 +77,7 @@ public class Echipa{
         return infrangeri;
     }
 
+    public int getId() {
+        return id;
+    }
 }
